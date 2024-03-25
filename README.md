@@ -83,3 +83,5 @@ sheet.write_csv(csv_folder.joinpath("subscriptions.csv"), subscriptions, sort_li
 ---
 
 # Changelist
+
+- 2024-24-03: Initial commit
