@@ -164,5 +164,5 @@ cython_debug/
 poppler/
 !poppler/README.md
 
-
 vendored/python/*
+user/*
