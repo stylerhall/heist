@@ -6,7 +6,7 @@ from typing import Optional, Union
 
 import pypdf
 
-from pdfripper import utils
+from heist import utils
 
 __all__: list[str] = ["PdfFile"]
 
@@ -72,7 +72,6 @@ class PdfFile:
         self._save_pdf = save_pdf
 
     def __repr__(self) -> str:
-        name: str = self.__class__.__name__
         info: dict = {
             "pdf_file": self.pdf_file,
             "page_count": self.page_count,
@@ -81,7 +80,7 @@ class PdfFile:
             "text_file": self.text_file
         }
 
-        return f"{name}({', '.join([f'{k}={v}' for k, v in info.items()])})"
+        return f"{self.__class__.__name__}({', '.join([f'{k}={v}' for k, v in info.items()])})"
 
     @property
     def pdf_file(self) -> Path:

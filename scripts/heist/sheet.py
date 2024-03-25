@@ -2,7 +2,7 @@ import csv
 from pathlib import Path
 from typing import Optional, Union
 
-from pdfripper.finance import TransactionType
+from heist.finance import TransactionType
 
 __all__: list[str] = [
     "get_fields",

@@ -1,6 +1,4 @@
-"""PDF Ripper: Chase Bank Statement
-All methods in here are intended to be used with Chase Bank statements.
-
+"""Heist: Bank Statement Classes
 This was written in 2024 to parse statements from 2023. There is a possibility that older or future
 statements may not parse correctly. This is due to the fact that the PDF format may change over time.
 """
@@ -8,11 +6,11 @@ import re
 from pathlib import Path
 from typing import Optional, Union
 
-from pdfripper import utils, PdfFile
+from heist import utils, PdfFile
 
 __all__: list[str] = [
     "TransactionType",
-    "PdfStatementBase",
+    "StatementBase",
     "ChaseChecking",
     "ChaseCreditAmazon",
     "search_transactions",
@@ -22,7 +20,7 @@ __all__: list[str] = [
 TransactionType = dict[str, Union[str, float]]
 
 
-class PdfStatementBase(PdfFile):
+class StatementBase(PdfFile):
     """Parses a financial statement PDF file for inspection.
 
     This class is intended to be subclassed by financial institutions. It provides a base class
@@ -136,7 +134,7 @@ class PdfStatementBase(PdfFile):
         return output
 
 
-class ChaseChecking(PdfStatementBase):
+class ChaseChecking(StatementBase):
     """Parses a Chase Bank checking account statement.
 
     You may override the
@@ -201,7 +199,7 @@ class ChaseChecking(PdfStatementBase):
         return date, desc, amount, balance
 
 
-class ChaseCreditAmazon(PdfStatementBase):
+class ChaseCreditAmazon(StatementBase):
 
     # this helps us find the absolute bottom of a page
     __re_page_end__ = (
@@ -262,7 +260,7 @@ class ChaseCreditAmazon(PdfStatementBase):
         return date, desc, amount
 
 
-class BarclaysArrivalPlus(PdfStatementBase):
+class BarclaysArrivalPlus(StatementBase):
     """Parses a Barclays Arrival Plus credit card statement."""
 
     # this helps us find the absolute bottom of a page
@@ -325,8 +323,8 @@ class BarclaysArrivalPlus(PdfStatementBase):
         return date, desc, miles, amount
 
 
-def search_transactions(wildcards: Union[str, list[str]], transactions: Optional[list[dict]]) -> list[dict]:
-    """Finds transactions that match the given wildcard.
+def search_transactions(wildcards: Union[str, list[str]], transactions: list[dict]) -> list[dict]:
+    """Finds expenses that match the given wildcard.
 
     Args:
         wildcards (str | list[str]): The wildcard or wildcards to search for.

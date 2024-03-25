@@ -1,11 +1,10 @@
 import re
-import csv
-from io import open
-from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
 
 __all__: list[str] = [
-    "cast_float"
+    "cast_float",
+    "replace_ligatures",
+    "convert_date"
 ]
 
 
@@ -48,7 +47,8 @@ def replace_ligatures(text: str) -> str:
         "¢": "c",
         "•": "*",
         "™": "TM",
-        "®": "(R)"
+        "®": "(R)",
+        "©": "(C)"
     }
 
     for search, replace in ligatures.items():
