@@ -40,33 +40,30 @@ from pathlib import Path
 from heist import finance, expense, sheet
 from heist.finance import TransactionType
 
-# query all of our financial transactions
+# batch all transactions from multiple lenders into a list
 transactions: list[TransactionType] = expense.get_chase_checking("c:/path/to/pdf/files")
 transactions.extend(expense.get_chase_amazon("c:/path/to/pdf/files"))
 transactions.extend(expense.get_barclays_arrivalplus("c:/path/to/pdf/files"))
 
-# wildcard search for transactions using a string  or list of strings
+# wildcard search for transactions using a string or list of strings
 vehicle_reg: list[dict] = finance.search_transactions("dmv", transactions)
 amazon: list[dict] = finance.search_transactions(["amazon", "amzn"], transactions)
 apple: list[dict] = finance.search_transactions("apple.com", transactions)
 google: list[dict] = finance.search_transactions("google", transactions)
 subscriptions: list[dict] = finance.search_transactions(["netflix", "openai", "hulu", "spotify"], transactions)
 
-# the list of csv files that get generated
-sheets: list[Path] = []
-
-# this defines the column order
-sort_list: list[str] = ["bank", "date", "description", "amount", "miles"]
-
+# specify and create the csv destination folder
 csv_folder: Path = Path("c:/path/to/write/csv/files")
 csv_folder.mkdir(parents=True, exist_ok=True)
 
-sheets.append(sheet.write_csv(csv_folder.joinpath("all_transactions.csv"), transactions, sort_list=sort_list))
-sheets.append(sheet.write_csv(csv_folder.joinpath("vehicle_registration.csv"), vehicle_reg, sort_list=sort_list))
-sheets.append(sheet.write_csv(csv_folder.joinpath("amazon.csv"), amazon, sort_list=sort_list))
-sheets.append(sheet.write_csv(csv_folder.joinpath("apple.csv"), apple, sort_list=sort_list))
-sheets.append(sheet.write_csv(csv_folder.joinpath("google.csv"), google, sort_list=sort_list))
-sheets.append(sheet.write_csv(csv_folder.joinpath("subscriptions.csv"), subscriptions, sort_list=sort_list))
+# csv column sort order based on transaction data
+sort_list: list[str] = ["bank", "date", "description", "amount", "miles"]
+sheet.write_csv(csv_folder.joinpath("all_transactions.csv"), transactions, sort_list=sort_list)
+sheet.write_csv(csv_folder.joinpath("vehicle_registration.csv"), vehicle_reg, sort_list=sort_list)
+sheet.write_csv(csv_folder.joinpath("amazon.csv"), amazon, sort_list=sort_list)
+sheet.write_csv(csv_folder.joinpath("apple.csv"), apple, sort_list=sort_list)
+sheet.write_csv(csv_folder.joinpath("google.csv"), google, sort_list=sort_list)
+sheet.write_csv(csv_folder.joinpath("subscriptions.csv"), subscriptions, sort_list=sort_list)
 ```
 
 ---
