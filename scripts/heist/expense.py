@@ -1,17 +1,17 @@
 from pathlib import Path
 from typing import Union
 
-from heist import finance, sheet
+from heist import finance
 from heist.finance import TransactionType
 
 __all__: list[str] = [
-    "get_chase_checking_transactions",
-    "get_chase_amazon_transactions",
-    "get_barclays_arrivalplus_transactions"
+    "get_chase_checking",
+    "get_chase_amazon",
+    "get_barclays_arrivalplus"
 ]
 
 
-def get_chase_checking_transactions(folder: Union[str, Path]) -> list[TransactionType]:
+def get_chase_checking(folder: Union[str, Path]) -> list[TransactionType]:
     """Parses a folder of Chase Bank statements.
 
     Args:
@@ -31,7 +31,7 @@ def get_chase_checking_transactions(folder: Union[str, Path]) -> list[Transactio
     return all_trans
 
 
-def get_chase_amazon_transactions(folder: Union[str, Path]) -> list[TransactionType]:
+def get_chase_amazon(folder: Union[str, Path]) -> list[TransactionType]:
     """Parses a folder of Chase Amazon Visa credit card statements.
 
     Args:
@@ -51,7 +51,7 @@ def get_chase_amazon_transactions(folder: Union[str, Path]) -> list[TransactionT
     return all_trans
 
 
-def get_barclays_arrivalplus_transactions(folder: Union[str, Path]) -> list[TransactionType]:
+def get_barclays_arrivalplus(folder: Union[str, Path]) -> list[TransactionType]:
     """Parses a folder of Barclay's Arrival+ Mastercard credit card statements.
 
     Args:

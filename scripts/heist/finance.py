@@ -37,7 +37,8 @@ class StatementBase(PdfFile):
 
     # this helps us find transaction lines
     __re_transaction__: str = (
-        r"(?P<date>\d+/\d+)\s*(?P<desc>.+)\s+"
+        r"(?P<date>\d+/\d+)\s+"
+        r"(?P<desc>.+)\s+"
         r"(?P<amount>.*[\d]+\.[\d]+)\s+"
         r"(?P<balance>[\d\.,\-]+)"
     )
@@ -96,10 +97,9 @@ class StatementBase(PdfFile):
         Returns:
             (dict) The transaction details.
         """
-        date, desc, amount, balance = self._get_transaction_details(text)
-        return dict(zip(["date", "description", "amount"], [date, desc, amount]))
+        raise NotImplementedError
 
-    def search_transactions(self, wildcards: Union[str, list[str]], transactions: Optional[list[TransactionType]] = None) -> list[TransactionType]:
+    def search(self, wildcards: Union[str, list[str]], transactions: Optional[list[TransactionType]] = None) -> list[TransactionType]:
         """Finds transactions that match the given wildcard.
 
         Args:
@@ -167,18 +167,6 @@ class ChaseChecking(StatementBase):
         """
         super().__init__(filename, start_page=start_page, end_page=end_page, page_break=page_break, save_pdf=save_pdf)
 
-    def _parse_transaction(self, text: str) -> TransactionType:
-        """Parses a transaction line and returns the details.
-
-        Args:
-            text (str): The transaction line to parse.
-
-        Returns:
-            (dict) The transaction details.
-        """
-        date, desc, amount, balance = self._get_transaction_details(text)
-        return dict(zip(["bank", "date", "description", "amount"], [self.bank_name, date, desc, amount]))
-
     def _get_transaction_details(self, text: str, absolute: bool = True) -> tuple:
         """Parses a transaction line and returns the details.
 
@@ -197,6 +185,18 @@ class ChaseChecking(StatementBase):
         balance: float = utils.cast_float(match.group("balance"))
 
         return date, desc, amount, balance
+
+    def _parse_transaction(self, text: str) -> TransactionType:
+        """Parses a transaction line and returns the details.
+
+        Args:
+            text (str): The transaction line to parse.
+
+        Returns:
+            (dict) The transaction details.
+        """
+        date, desc, amount, balance = self._get_transaction_details(text)
+        return dict(zip(["bank", "date", "description", "amount"], [self.bank_name, date, desc, amount]))
 
 
 class ChaseCreditAmazon(StatementBase):
