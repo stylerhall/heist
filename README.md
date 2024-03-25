@@ -21,12 +21,12 @@ The pattern for extracting the date, description, amount, and balance would look
     03/25       Example charge description                -10.00         123.45
 
 ```python
-    __re_transaction__: str = (
-        r"(?P<date>\d+/\d+)\s+"
-        r"(?P<desc>.+)\s+"
-        r"(?P<amount>.*[\d]+\.[\d]+)\s+"
-        r"(?P<balance>[\d\.,\-]+)"
-    )
+__re_transaction__: str = (
+    r"(?P<date>\d+/\d+)\s+"
+    r"(?P<desc>.+)\s+"
+    r"(?P<amount>.*[\d]+\.[\d]+)\s+"
+    r"(?P<balance>[\d\.,\-]+)"
+)
 ```
 
 ---

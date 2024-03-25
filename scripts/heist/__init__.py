@@ -23,6 +23,7 @@ class PdfFile:
     object, where the keys are the page numbers and the values are the text from the page.
     """
 
+    _pdf: pypdf.PdfReader
     _filename: Path
     _start: int
     _end: int
