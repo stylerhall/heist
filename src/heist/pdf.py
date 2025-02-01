@@ -2,17 +2,12 @@ import re
 import subprocess
 from io import open
 from pathlib import Path
-from typing import Optional, Union
 
 import pypdf
 
-from heist import utils
+from heist import settings, utils
 
-__all__: list[str] = ["PdfFile"]
-
-
-# this is the path to the pdftotext executable from poppler
-_pdf_to_text: Path = Path(__file__).parents[2].joinpath("vendored", "poppler", "Library", "bin", "pdftotext.exe")
+_pdf_to_text: Path = settings['pdftotext']
 
 
 class PdfFile:
@@ -23,20 +18,13 @@ class PdfFile:
     object, where the keys are the page numbers and the values are the text from the page.
     """
 
-    _pdf: pypdf.PdfReader
-    _filename: Path
-    _start: int
-    _end: int
-    _breaks: bool
-    _save_pdf: bool
-
     # this helps us find the absolute bottom of a page
     __re_page_end__: str = r"Page \d+ of \d+"
 
     def __init__(self,
-                 filename: Union[str, Path],
+                 filename: str | Path,
                  start_page: int = 1,
-                 end_page: Optional[int] = None,
+                 end_page: int | None = None,
                  page_break: bool = True,
                  save_pdf: bool = False) -> None:
         """Parses a PDF file for inspection.
@@ -50,7 +38,12 @@ class PdfFile:
         if not _pdf_to_text.is_file():
             raise FileNotFoundError("'pdftotext.exe' could not be found. check out the './vendored/poppler/README.md' file for more info.")
 
-        self._filename = Path(filename)
+        self._start: int
+        self._end: int
+        self._breaks: bool
+        self._save_pdf: bool
+
+        self._filename: Path = Path(filename)
 
         if not self._filename.suffix.lower() == ".pdf":
             raise ValueError(f"file is not a PDF: {self._filename}")
@@ -66,11 +59,10 @@ class PdfFile:
         if start_page > end_page:
             raise ValueError(f"start page cannot be greater than the end page - start_page={start_page}, end_page={end_page}, page_count={self.page_count}")
 
-        self._filename = filename
-        self._start = start_page
-        self._end = end_page
-        self._breaks = page_break
-        self._save_pdf = save_pdf
+        self._start: int = start_page
+        self._end: int = end_page
+        self._breaks: bool = page_break
+        self._save_pdf: bool = save_pdf
 
     def __repr__(self) -> str:
         info: dict = {
@@ -105,7 +97,7 @@ class PdfFile:
         Returns:
             (int) The number of pages in the PDF.
         """
-        return self._pdf._get_num_pages()
+        return self._pdf.get_num_pages()
 
     @property
     def pages(self) -> dict[str, list[str]]:
@@ -120,7 +112,7 @@ class PdfFile:
         return bool(re.search(self.__re_page_end__, text, flags=re.IGNORECASE))
 
     def dump_text_file(self) -> Path:
-        """Dump the text from the PDF to a text file.
+        """Dump the data from the PDF to a text file.
 
         Returns:
             (Path) The path to the text file.
@@ -146,6 +138,8 @@ class PdfFile:
             command.append("-nopgbrk")
 
         command.extend([self.pdf_file.as_posix(), self.text_file.as_posix()])
+
+        print(command)
         subprocess.run(command)
 
         if self._save_pdf:
@@ -158,9 +152,6 @@ class PdfFile:
 
         Details:
             This method will delete the existing text file if it exists, then create a new one.
-
-        Args:
-            delete (bool): Optional. Whether to delete the text file after reading. Default is True.
 
         Returns:
             (list[str]) The text from the file.
@@ -186,7 +177,7 @@ class PdfFile:
         dict_pages: dict[str, list[str]] = {}
         page_blocks: list[tuple[int, int]] = []
 
-        start_index: Optional[int] = 0
+        start_index: int | None = 0
 
         # the first iteration of the text determines the page breaks, this allows us to
         # split the lines into logical pages, within the dictionary object.

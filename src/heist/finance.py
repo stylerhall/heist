@@ -4,23 +4,15 @@ statements may not parse correctly. This is due to the fact that the PDF format 
 """
 import re
 from pathlib import Path
-from typing import Optional, Union
 
-from heist import utils, PdfFile
+from heist import logger, pdf, utils
 
-__all__: list[str] = [
-    "TransactionType",
-    "StatementBase",
-    "ChaseChecking",
-    "ChaseCreditAmazon",
-    "search_transactions",
-]
+_logger = logger.get(__name__)
+
+TransactionType = dict[str, str | float]
 
 
-TransactionType = dict[str, Union[str, float]]
-
-
-class StatementBase(PdfFile):
+class BaseStatement(pdf.PdfFile):
     """Parses a financial statement PDF file for inspection.
 
     This class is intended to be subclassed by financial institutions. It provides a base class
@@ -44,18 +36,18 @@ class StatementBase(PdfFile):
     )
 
     def __init__(self,
-                 filename: Union[str, Path],
+                 filename: str | Path,
                  start_page: int = 1,
-                 end_page: Optional[int] = None,
+                 end_page: int | None = None,
                  page_break: bool = True,
                  save_pdf: bool = True) -> None:
         """Parses a financial statement PDF file for inspection.
 
         Args:
             filename (str | Path): The path to the PDF file.
-            start_page (int): Optional. The page number to start reading text from. Default is 1.
-            page_break (bool): Optional. Whether to remove page breaks in the text. Default is True.
-            save_pdf (bool): Optional. Whether to save the text file after reading. Default is False.
+            start_page (int, optional):  The page number to start reading text from. Default is 1.
+            page_break (bool, optional):  Whether to remove page breaks in the text. Default is True.
+            save_pdf (bool, optional):  Whether to save the text file after reading. Default is False.
         """
         super().__init__(filename, start_page=start_page, end_page=end_page, page_break=page_break, save_pdf=save_pdf)
 
@@ -81,7 +73,7 @@ class StatementBase(PdfFile):
 
         Args:
             text (str): The transaction line to parse.
-            absolute (bool): Optional. Whether to return the absolute value of the amount. Default is True.
+            absolute (bool, optional):  Whether to return the absolute value of the amount. Default is True.
 
         Returns:
             (tuple) The transaction details; date, desc, amount, balance.
@@ -99,7 +91,7 @@ class StatementBase(PdfFile):
         """
         raise NotImplementedError
 
-    def search(self, wildcards: Union[str, list[str]], transactions: Optional[list[TransactionType]] = None) -> list[TransactionType]:
+    def search(self, wildcards: str | list[str], transactions: list[TransactionType] | None = None) -> list[TransactionType]:
         """Finds transactions that match the given wildcard.
 
         Args:
@@ -134,16 +126,10 @@ class StatementBase(PdfFile):
         return output
 
 
-class ChaseChecking(StatementBase):
-    """Parses a Chase Bank checking account statement.
+class ChaseChecking(BaseStatement):
 
-    You may override the
-    """
-
-    # this helps us find the absolute bottom of a page
     __re_page_end__: str = r"Page \d+ of \d+"
 
-    # this helps us find transaction lines
     __re_transaction__: str = (
         r"(?P<date>\d+/\d+)\s+"
         r"(?P<desc>.+)\s+"
@@ -152,18 +138,18 @@ class ChaseChecking(StatementBase):
     )
 
     def __init__(self,
-                 filename: Union[str, Path],
+                 filename: str | Path,
                  start_page: int = 1,
-                 end_page: Optional[int] = None,
+                 end_page: int | None = None,
                  page_break: bool = True,
                  save_pdf: bool = False) -> None:
         """Parses a Chase Bank checking account statement.
 
         Args:
             filename (str | Path): The path to the PDF file.
-            start_page (int): Optional. The page number to start reading text from. Default is 1.
-            page_break (bool): Optional. Whether to remove page breaks in the text. Default is True.
-            save_pdf (bool): Optional. Whether to save the text file after reading. Default is False.
+            start_page (int, optional):  The page number to start reading text from. Default is 1.
+            page_break (bool, optional):  Whether to remove page breaks in the text. Default is True.
+            save_pdf (bool, optional):  Whether to save the text file after reading. Default is False.
         """
         super().__init__(filename, start_page=start_page, end_page=end_page, page_break=page_break, save_pdf=save_pdf)
 
@@ -172,7 +158,7 @@ class ChaseChecking(StatementBase):
 
         Args:
             text (str): The transaction line to parse.
-            absolute (bool): Optional. Whether to return the absolute value of the amount. Default is True.
+            absolute (bool, optional):  Whether to return the absolute value of the amount. Default is True.
 
         Returns:
             (tuple) The transaction details; date, desc, amount, balance.
@@ -199,33 +185,31 @@ class ChaseChecking(StatementBase):
         return dict(zip(["bank", "date", "description", "amount"], [self.bank_name, date, desc, amount]))
 
 
-class ChaseCreditAmazon(StatementBase):
+class ChaseCreditAmazon(BaseStatement):
 
-    # this helps us find the absolute bottom of a page
     __re_page_end__ = (
         r"(?P<date>\d+/\d+/\d+)\s+"
         r"(?P<page>Page \d+ of \d+)"
     )
 
-    # this helps us find transaction lines
     __re_transaction__ = (
         r"(?P<date>\d+/\d+)\s+"
         r"(?P<desc>.+)\s+"
         r"(?P<amount>.*[\d]+\.[\d]+)"
     )
 
-    def __init__(self, filename: Union[str, Path],
+    def __init__(self, filename: str | Path,
                  start_page: int = 1,
-                 end_page: Optional[int] = None,
+                 end_page: int | None = None,
                  page_break: bool = True,
                  save_pdf: bool = False) -> None:
         """Parses a Chase Amazon credit card statement.
 
         Args:
             filename (str | Path): The path to the PDF file.
-            start_page (int): Optional. The page number to start reading text from. Default is 1.
-            page_break (bool): Optional. Whether to remove page breaks in the text. Default is True.
-            save_pdf (bool): Optional. Whether to save the text file after reading. Default is False.
+            start_page (int, optional):  The page number to start reading text from. Default is 1.
+            page_break (bool, optional):  Whether to remove page breaks in the text. Default is True.
+            save_pdf (bool, optional):  Whether to save the text file after reading. Default is False.
         """
         super().__init__(filename, start_page=start_page, end_page=end_page, page_break=page_break, save_pdf=save_pdf)
 
@@ -246,7 +230,7 @@ class ChaseCreditAmazon(StatementBase):
 
         Args:
             text (str): The transaction line to parse.
-            absolute (bool): Optional. Whether to return the absolute value of the amount. Default is True.
+            absolute (bool, optional):  Whether to return the absolute value of the amount. Default is True.
 
         Returns:
             (tuple) The transaction details; date, desc, amount, balance.
@@ -260,13 +244,9 @@ class ChaseCreditAmazon(StatementBase):
         return date, desc, amount
 
 
-class BarclaysArrivalPlus(StatementBase):
-    """Parses a Barclays Arrival Plus credit card statement."""
-
-    # this helps us find the absolute bottom of a page
+class BarclaysArrivalPlus(BaseStatement):
     __re_page_end__: str = r"Page \d+ of \d+"
 
-    # this helps us find transaction lines
     __re_transaction__: str = (
         r"(?P<dateA>\w+ \d{2})\s+"
         r"(?P<dateB>\w+ \d{2})\s+"
@@ -276,18 +256,18 @@ class BarclaysArrivalPlus(StatementBase):
     )
 
     def __init__(self,
-                 filename: Union[str, Path],
+                 filename: str | Path,
                  start_page: int = 1,
-                 end_page: Optional[int] = None,
+                 end_page: int | None = None,
                  page_break: bool = True,
                  save_pdf: bool = False) -> None:
         """Parses a Barclay's Arrival+ credit card statement.
 
         Args:
             filename (str | Path): The path to the PDF file.
-            start_page (int): Optional. The page number to start reading text from. Default is 1.
-            page_break (bool): Optional. Whether to remove page breaks in the text. Default is True.
-            save_pdf (bool): Optional. Whether to save the text file after reading. Default is False.
+            start_page (int, optional):  The page number to start reading text from. Default is 1.
+            page_break (bool, optional):  Whether to remove page breaks in the text. Default is True.
+            save_pdf (bool, optional):  Whether to save the text file after reading. Default is False.
         """
         super().__init__(filename, start_page=start_page, end_page=end_page, page_break=page_break, save_pdf=save_pdf)
 
@@ -308,7 +288,7 @@ class BarclaysArrivalPlus(StatementBase):
 
         Args:
             text (str): The transaction line to parse.
-            absolute (bool): Optional. Whether to return the absolute value of the amount. Default is True.
+            absolute (bool, optional):  Whether to return the absolute value of the amount. Default is True.
 
         Returns:
             (tuple) The transaction details; date, desc, amount, balance.
@@ -323,7 +303,7 @@ class BarclaysArrivalPlus(StatementBase):
         return date, desc, miles, amount
 
 
-def search_transactions(wildcards: Union[str, list[str]], transactions: list[dict]) -> list[dict]:
+def search_transactions(wildcards: str | list[str], transactions: list[dict]) -> list[dict]:
     """Finds expenses that match the given wildcard.
 
     Args:
@@ -333,6 +313,8 @@ def search_transactions(wildcards: Union[str, list[str]], transactions: list[dic
     Returns:
         (list[dict]) The transactions that match the wildcard.
     """
+    _logger.info(f"Search transactions for: {wildcards}")
+
     wildcards = "|".join(wildcards) if isinstance(wildcards, list) else wildcards
     regex = re.compile(wildcards, flags=re.IGNORECASE)
 

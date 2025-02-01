@@ -1,0 +1,43 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "files.exclude": {
+            ".github": true,
+            ".git": true,
+            ".idea": true,
+            ".vscode": true,
+            ".DS_Store": true,
+            ".thumbnails": true,
+            "**/__pycache__": true,
+            "**/%SystemDrive%": true,
+        },
+        "ruff.enable": true,
+        "ruff.configuration": "",
+        "ruff.fixAll": true,
+        "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python",
+        "python.envFile": "",
+        "pythonIndent.trimLinesWithOnlyWhitespace": true,
+        "python.createEnvironment.trigger": "off",
+        "python.globalModuleInstallation": false,
+        "python.autoComplete.extraPaths": [],
+        "python.analysis.indexing": true,
+        "python.analysis.extraPaths": [
+            "${workspaceFolder}/src"
+        ],
+        "[python]": {
+            "editor.formatOnType": false,
+            "editor.wordBasedSuggestions": "allDocuments",
+            "diffEditor.ignoreTrimWhitespace": false,
+            "editor.defaultFormatter": "charliermarsh.ruff",
+            "editor.formatOnSave": true,
+            "editor.codeActionsOnSave": {
+                "source.fixAll": "always",
+                "source.organizeImports": "always"
+            }
+        },
+    }
+}

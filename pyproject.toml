@@ -1,0 +1,97 @@
+[project]
+name = "heist"
+version = "0.1.0"
+authors = [
+    { name = "Seth Hall", email = "sethhallvfx@gmail.com" }
+]
+description = "Extracts expenses from PDFs."
+readme = "README.md"
+requires-python = ">=3.13"
+license = { file = "LICENSE" }
+keywords = ["python", "pdf", "expense-tracker", "python3", "UV", "taxes"]
+dependencies = [
+    "pypdf>=5.2.0",
+    "pyyaml>=6.0.2",
+    "ruff>=0.9.4",
+]
+
+[project.urls]
+Homepage = "https://github.com/stylerhall/heist"
+Repository = "https://github.com/stylerhall/heist"
+Issues = "https://github.com/stylerhall/heist/issues"
+Documentation = "https://github.com/stylerhall/heist/README.md"
+
+[tool.uv]
+dev-dependencies = [
+    "ruff>=0.9.4"
+]
+
+[tool.uv.extras]
+pth-files = [
+    "src"
+]
+
+[tool.ruff]
+include = ["pyproject.toml", "src/**/*.py"]
+target-version = "py313"
+line-length = 120
+indent-width = 4
+
+[tool.ruff.lint]
+select = ["I", "E", "F"]
+ignore = ["E402", "E501", "F401"]
+exclude = ["**/tests/**"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = false
+docstring-code-line-length = "dynamic"
+
+[lint.isort]
+lines-after-imports = 2
+relative-imports-order = "furthest-to-closest"
+no-sections = false
+section-order = [
+    "future",
+    "standard-library",
+    "first-party",
+    "local-folder",
+    "third-party"
+]
+no-lines-before = [
+    "future",
+    "standard-library"
+]
+case-sensitive = true
+order-by-type = true
+split-on-trailing-comma = false
+
+[lint]
+fix = true
+preview = false
+fixable = ["ALL"]
+unfixable = []
+select = [
+    "E4", # Rules related to incorrect import statements
+    "E7", # "Pycodestyle" standard related to "too many lines in a function" or "function too long"
+    "E9", # Rules related to io and syntax errors
+    "F", # Rules related to PyFlakes errors (e.g., unused imports, undefined names)
+    "N", # Rules related to pep8-naming
+    "RUF034", # Useless if-else condition
+    "RUF048", # An enum class should not be decorated with @dataclass
+    "RUF056", # Plain string pattern passed to re function
+    "RUF057", # Value being rounded is already an integer
+]
+extend-select = [
+    "I",    # Sorts imports
+]
+ignore = [
+    "F401", # Ignore "unused import" warnings
+    "E402", # Ignore "module level import not at top of file" warnings
+    "E501", # Ignore line too long ({width} > {limit})
+]
+typing-modules = ["airflow.typing_compat"]
+task-tags = ["HACK", "TODO", "FIXME", "DEBUG", "NOTE", "REVIEW"]

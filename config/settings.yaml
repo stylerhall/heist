@@ -1,0 +1,7 @@
+---
+# the path to 'pdftotext.exe' from the Poppler library
+pdftotext: !path "../vendored/poppler/Library/bin/pdftotext.exe"
+
+# the root folder where your PDF statements are stored
+statements: !env_path ["USERPROFILE", "Documents", "heist", "statements", "2024"]
+...

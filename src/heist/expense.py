@@ -1,17 +1,12 @@
 from pathlib import Path
-from typing import Union
 
-from heist import finance
+from heist import finance, logger
 from heist.finance import TransactionType
 
-__all__: list[str] = [
-    "get_chase_checking",
-    "get_chase_amazon",
-    "get_barclays_arrivalplus"
-]
+_logger = logger.get(__name__)
 
 
-def get_chase_checking(folder: Union[str, Path]) -> list[TransactionType]:
+def get_chase_checking(folder: str | Path) -> list[TransactionType]:
     """Parses a folder of Chase Bank statements.
 
     Args:
@@ -22,6 +17,12 @@ def get_chase_checking(folder: Union[str, Path]) -> list[TransactionType]:
     """
     folder = Path(folder) if isinstance(folder, str) else folder
 
+    if not folder.exists():
+        _logger.error(f"Folder does not exist: {folder}")
+        return []
+
+    _logger.info("Read Chase checking statements.")
+
     all_trans: list[TransactionType] = []
 
     for pdf_file in folder.glob("*.pdf"):
@@ -31,7 +32,7 @@ def get_chase_checking(folder: Union[str, Path]) -> list[TransactionType]:
     return all_trans
 
 
-def get_chase_amazon(folder: Union[str, Path]) -> list[TransactionType]:
+def get_chase_amazon(folder: str | Path) -> list[TransactionType]:
     """Parses a folder of Chase Amazon Visa credit card statements.
 
     Args:
@@ -42,6 +43,12 @@ def get_chase_amazon(folder: Union[str, Path]) -> list[TransactionType]:
     """
     folder = Path(folder) if isinstance(folder, str) else folder
 
+    if not folder.exists():
+        _logger.error(f"Folder does not exist: {folder}")
+        return []
+
+    _logger.info("Read Chase Amazon statements.")
+
     all_trans: list[TransactionType] = []
 
     for pdf_file in folder.glob("*.pdf"):
@@ -51,7 +58,7 @@ def get_chase_amazon(folder: Union[str, Path]) -> list[TransactionType]:
     return all_trans
 
 
-def get_barclays_arrivalplus(folder: Union[str, Path]) -> list[TransactionType]:
+def get_barclays_arrivalplus(folder: str | Path) -> list[TransactionType]:
     """Parses a folder of Barclay's Arrival+ Mastercard credit card statements.
 
     Args:
@@ -61,6 +68,12 @@ def get_barclays_arrivalplus(folder: Union[str, Path]) -> list[TransactionType]:
         (list[dict]) The transaction details.
     """
     folder = Path(folder) if isinstance(folder, str) else folder
+
+    if not folder.exists():
+        _logger.error(f"Folder does not exist: {folder}")
+        return []
+
+    _logger.info("Read Barclay's Arrival+ statements.")
 
     all_trans: list[TransactionType] = []
 

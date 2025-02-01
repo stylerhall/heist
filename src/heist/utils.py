@@ -1,11 +1,4 @@
 import re
-from typing import Optional
-
-__all__: list[str] = [
-    "cast_float",
-    "replace_ligatures",
-    "convert_date"
-]
 
 
 def cast_float(text: str, absolute: bool = False) -> float:
@@ -48,7 +41,7 @@ def replace_ligatures(text: str) -> str:
         "•": "*",
         "™": "TM",
         "®": "(R)",
-        "©": "(C)"
+        "©": "(C)",
     }
 
     for search, replace in ligatures.items():
@@ -75,12 +68,25 @@ def convert_date(date_str: str) -> str:
     else:
         raise ValueError(f"invalid date: {date_str}")
 
-    months: list[str] = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+    months: list[str] = [
+        "jan",
+        "feb",
+        "mar",
+        "apr",
+        "may",
+        "jun",
+        "jul",
+        "aug",
+        "sep",
+        "oct",
+        "nov",
+        "dec",
+    ]
 
     # this is a more reliable way to match the month since I cannot guarantee
     # that the month will be abbreviated or fully spelled out.
     regex: re.Pattern = re.compile("|".join(months), flags=re.IGNORECASE)
-    find: Optional[re.Match] = regex.match(month)
+    find: re.Match | None = regex.match(month)
 
     if find is None:
         raise ValueError(f"invalid month: {month}")
